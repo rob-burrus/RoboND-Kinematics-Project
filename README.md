@@ -6,8 +6,7 @@ Project description here
 
 [image1]: ./link_assignments.png
 [image2]: ./DH_individual_transforms.png
-[image2]: ./DH_individual_transforms_matrix.png
-[image3]: ./misc_images/misc2.png
+[image3]: ./DH_individual_transforms_matrix.png
 
 # Kinematic Analysis
 
@@ -29,7 +28,7 @@ The DH parameter assignment process for open kinematic chains with n degrees of 
 
 Link assigments:
 
-[Robot Arm Link Assignments][image1]
+![Robot Arm Link Assignments][image1]
 
 The 4 parameter values for the DH parameter table are (Note:Because the KR210 has 6 revolute joints, only the theta terms are time variable):
  - alpha = twist angle
@@ -53,9 +52,9 @@ Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
 
 Using DH parameters, create individual tranformation matrices about each joint. The DH convention uses 4 individual transforms:
 
-[DH Individual Transforms][image2]
+![DH Individual Transforms][image2]
 
-[DH Individual Transforms Matrix][image3]
+![DH Individual Transforms Matrix][image3]
 
 Add code to showing how I generated the individual transforms with a function
 
