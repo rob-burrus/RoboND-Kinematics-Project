@@ -1,5 +1,36 @@
-[![Udacity - Robotics NanoDegree Program](https://s3-us-west-1.amazonaws.com/udacity-robotics/Extra+Images/RoboND_flag.png)](https://www.udacity.com/robotics)
 # Robotic arm - Pick & Place project
+
+Project description here
+
+# Kinematic Analysis
+
+Robot link assigments and joint rotations
+
+DH parameter table
+Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
+--- | --- | --- | --- | ---
+0->1 | 0 | 0 | L1 | qi
+1->2 | - pi/2 | L2 | 0 | -pi/2 + q2
+2->3 | 0 | 0 | 0 | 0
+3->4 |  0 | 0 | 0 | 0
+4->5 | 0 | 0 | 0 | 0
+5->6 | 0 | 0 | 0 | 0
+6->EE | 0 | 0 | 0 | 0
+
+Using DH parameters, crea individual tranformation matrices about each joint. Also generate a homogenous tranform between base_link and gripper_link using the end-effector pose
+
+### Inverse kinematics
+
+Break into position and orientation problems
+
+Steps for deriving the equations for individual joint angles. (If any joint has multiple solutions, select the best solution and provide an explanation about your choice (hint: some joints have physical limits)
+
+# Project Implementation
+
+IK_server.py implementation details
+
+
+# Running the project
 
 Make sure you are using robo-nd VM or have Ubuntu+ROS installed locally.
 
@@ -52,50 +83,21 @@ $ cd ~/catkin_ws
 $ catkin_make
 ```
 
-Add following to your .bashrc file
+Add following to the .bashrc file
 ```
 export GAZEBO_MODEL_PATH=~/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/models
 
 source ~/catkin_ws/devel/setup.bash
 ```
 
-For demo mode make sure the **demo** flag is set to _"true"_ in `inverse_kinematics.launch` file under /RoboND-Kinematics-Project/kuka_arm/launch
-
-In addition, you can also control the spawn location of the target object in the shelf. To do this, modify the **spawn_location** argument in `target_description.launch` file under /RoboND-Kinematics-Project/kuka_arm/launch. 0-9 are valid values for spawn_location with 0 being random mode.
-
-You can launch the project by
+Launch the project by
 ```sh
 $ cd ~/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/scripts
 $ ./safe_spawner.sh
 ```
 
-If you are running in demo mode, this is all you need. To run your own Inverse Kinematics code change the **demo** flag described above to _"false"_ and run your code (once the project has successfully loaded) by:
+Then run:
 ```sh
 $ cd ~/catkin_ws/src/RoboND-Kinematics-Project/kuka_arm/scripts
 $ rosrun kuka_arm IK_server.py
 ```
-Once Gazebo and rviz are up and running, make sure you see following in the gazebo world:
-
-	- Robot
-	
-	- Shelf
-	
-	- Blue cylindrical target in one of the shelves
-	
-	- Dropbox right next to the robot
-	
-
-If any of these items are missing, report as an issue.
-
-Once all these items are confirmed, open rviz window, hit Next button.
-
-To view the complete demo keep hitting Next after previous action is completed successfully. 
-
-Since debugging is enabled, you should be able to see diagnostic output on various terminals that have popped up.
-
-The demo ends when the robot arm reaches at the top of the drop location. 
-
-There is no loopback implemented yet, so you need to close all the terminal windows in order to restart.
-
-In case the demo fails, close all three terminal windows and rerun the script.
-
