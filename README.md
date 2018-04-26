@@ -60,10 +60,10 @@ THe function TF_Matrix shown below is a helper function used to create homogeneo
 
 ```
 def TF_Matrix(alpha, a, d, q):
-    TF = Matrix([[	cos(q),		                    -sin(q),           0,             a],
-	                [ sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
-	                [ sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
-	                [		               0,		               0, 	         0,		           1]])
+    TF = Matrix([[	      cos(q),		-sin(q),           0,             a],
+	         [ sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+	         [ sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+	         [		   0,		      0, 	   0,		  1]])
     return TF
 
 T0_1 = TF_Matrix(alpha0, a0, d1, q1).subs(s)
