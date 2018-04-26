@@ -7,6 +7,8 @@ Project description here
 [image1]: ./link_assignments.png
 [image2]: ./DH_individual_transforms.png
 [image3]: ./DH_individual_transforms_matrix.png
+[image4]: ./wrist_center_position.png
+[image5]: ./rotation_matrix.png
 
 # Kinematic Analysis
 
@@ -111,17 +113,55 @@ rot_ee = rot_ee.subs({'r': roll, 'p': pitch, 'y': yaw})
 
 ### Inverse kinematics
 
+Inverse kinematics is essentially the opposite of forward kinematics. In this case, the pose (position and orientation) of the end effector is known and the goal is to calculate the joint angles of the manipulator. For a manipulator with n-joints the overall transformation between the base and end effector can result in highly non-linear equations that can have 0 or multiple solutions. These solutions may violate real-world joint limits so car is needed when choosing among the possible solutions. 
+
+Because the last 3 joints in the KR210 are revolute and their joint axes intersect at a single point, we can solve the IK problem with an analytical, or closed-form, solution method, and we also have a case of spherical wrist with joint 5 being the common intersection point and hence the wrist center. This allows us to kinematically decouple the IK problem into Inverse Position and Inverse orientation problems. The steps are as follows:
  1. Calculate the location of the spherical wrist center (WC)
- 2. use trigonometry to solve for the first 3 joint angles
+ 2. Use trigonometry to solve for the first 3 joint angles
  3. The orientation of the end-effector is known from ROS. Find joint angles 4, 5, and 6 as demonstrated in "Euler Angles from Rotation Matrix"
- 
-Break into position and orientation problems
 
-Steps for deriving the equations for individual joint angles. (If any joint has multiple solutions, select the best solution and provide an explanation about your choice (hint: some joints have physical limits)
+The inverse position problem can be solved by noticing that, since we have the case of a spherical wrist invloving joints 4, 5, and 6, the position of the wrist center is governed by the first 3 joints. The position of the wrist center can be derived by using the complete transformation matrix from above. The equation for the wrist center position is:
 
-# Project Implementation
+Note: d = magnitude of the displacement of the WC from the EE along the Z6 axis. Defined in the URDF file
 
-IK_server.py implementation details
+![Wrist Center position equation][image4]
+
+```
+#px, py, pz are the position of the end effector provided by ROS
+ee_pos = Matrix([[px],
+		 [py],
+		 [pz]])
+wc = ee_pos - (0.303) * rot_ee[:,2]
+```
+Use geometry to calculate the joint angles for the first 3 joints
+
+Theta1 can be found be using the wrist center
+```
+theta1 = atan2(wc[1], wc[0])
+```
+
+
+
+Once the first 3 joint variables are known, fill in the rotation matric from the base link to link 3
+```
+R0_3 = T0_1[0:3, 0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
+R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3:theta3})
+R3_6 = R0_3.inv("LU") * rot_ee 
+```
+
+
+Find a set of Euler angles corresponding to the rotation matrix:
+
+![rotation matrix for Euler angles][image5]
+
+```
+theta4 = atan2(R3_6[2,2], -R3_6[0,2])
+theta5 = atan2(sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
+theta6 = atan2(-R3_6[1,1], R3_6[1,0])
+```
+
+
+
 
 
 # Running the project
