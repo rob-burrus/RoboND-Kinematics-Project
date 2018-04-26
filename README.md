@@ -56,11 +56,58 @@ Using DH parameters, create individual tranformation matrices about each joint. 
 
 ![DH Individual Transforms Matrix][image3]
 
-Add code to showing how I generated the individual transforms with a function
+THe function TF_Matrix shown below is a helper function used to create homogeneous transforms between individual neighboring links
+
+```
+def TF_Matrix(alpha, a, d, q):
+    TF = Matrix([[	cos(q),		                    -sin(q),           0,             a],
+	                [ sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+	                [ sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+	                [		               0,		               0, 	         0,		           1]])
+    return TF
+
+T0_1 = TF_Matrix(alpha0, a0, d1, q1).subs(s)
+T1_2 = TF_Matrix(alpha1, a1, d2, q2).subs(s)
+T2_3 = TF_Matrix(alpha2, a2, d3, q3).subs(s)
+T3_4 = TF_Matrix(alpha3, a3, d4, q4).subs(s)
+T4_5 = TF_Matrix(alpha4, a4, d5, q5).subs(s)
+T5_6 = TF_Matrix(alpha5, a5, d6, q6).subs(s)
+T6_EE = TF_Matrix(alpha6, a6, d7, q7).subs(s)
+```
 
 Also generate a homogenous tranform between base_link and gripper_link using the end-effector pose. In order to compare the total homogeneuos transform between the base link and the gripper link, we need to account for the difference in orientation of the gripper link frame. To do this, apply a sequence of body fixed (intrinsic) rotations. To get the frames to align: (1) rotate the gripper frame about the z-axis by 180 degrees, and (2) about the y-axis by -90 degrees
 
-Add code for total transform and the adjsuted made
+```
+T0_EE = simplify(T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE)
+```
+Accounting for difference in orientation:
+``` 
+def ROT_y(p):              
+    Rot_y = Matrix([[ cos(p),        0,  sin(p)],
+                    [      0,        1,       0],
+                    [-sin(p),        0,  cos(p)]])
+    return Rot_y
+
+def ROT_z(y):    
+    Rot_z = Matrix([[ cos(y),  -sin(y),       0],
+                    [ sin(y),   cos(y),       0],
+                    [      0,        0,       1]])
+    return Rot_z
+    
+
+r, p, y = symbols('r p y')
+
+rot_y = ROT_y(p)
+rot_z = ROT_z(y)
+rot_ee = rot_z * rot_y
+
+# Rotate gripper frame about z-axis by 180 degrees and about the y-axis by -90 degrees
+rot_err = rot_z.subs(y, rad(180)) * rot_y.subs(p, rad(-90))
+
+rot_ee = rot_ee * rot_err
+rot_ee = rot_ee.subs({'r': roll, 'p': pitch, 'y': yaw})
+```
+
 
 ### Inverse kinematics
 
