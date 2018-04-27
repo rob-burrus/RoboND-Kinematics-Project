@@ -8,8 +8,8 @@ Project description here
 [image2]: ./DH_individual_transforms.png
 [image3]: ./DH_individual_transforms_matrix.png
 [image4]: ./wrist_center_position.png
-[image6]: ./wc_triangle.png
-[image5]: ./rotation_matrix.png
+[image5]: ./wc_triangle.png
+[image6]: ./rotation_matrix.png
 
 # Kinematic Analysis
 
@@ -43,7 +43,7 @@ The numerical values for the a's and d's comes from the URDF file. Importantly, 
 
 DH parameter table:
 
-Links | alpha(i-1) | a(i-1) | d(1) | theta(i)
+Links | alpha(i-1) | a(i-1) | d(i) | theta(i)
 --- | --- | --- | --- | ---
 0->1 | 0 | 0 | 0.75 | q1
 1->2 | - pi/2 | 0.35 | 0 | -pi/2 + q2
@@ -175,7 +175,7 @@ theta3 = pi / 2 - (angle_b + 0.036)
 ```
 
 
-Once the first 3 joint variables are known, fill in the rotation matric from the base link to link 3
+Once the first 3 joint variables are known, fill in the rotation matrix from the base link to link 3
 ```
 R0_3 = T0_1[0:3, 0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
 R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3:theta3})
