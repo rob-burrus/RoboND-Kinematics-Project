@@ -8,6 +8,7 @@ Project description here
 [image2]: ./DH_individual_transforms.png
 [image3]: ./DH_individual_transforms_matrix.png
 [image4]: ./wrist_center_position.png
+[image6]: ./wc_triangle.png
 [image5]: ./rotation_matrix.png
 
 # Kinematic Analysis
@@ -42,7 +43,7 @@ The numerical values for the a's and d's comes from the URDF file. Importantly, 
 
 DH parameter table:
 
-Links | alpha(i-1) | a(i-1) | d(i-1) | theta(i)
+Links | alpha(i-1) | a(i-1) | d(1) | theta(i)
 --- | --- | --- | --- | ---
 0->1 | 0 | 0 | 0.75 | q1
 1->2 | - pi/2 | 0.35 | 0 | -pi/2 + q2
@@ -83,7 +84,7 @@ Also generate a homogenous tranform between base_link and gripper_link using the
 T0_EE = simplify(T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE)
 ```
 Accounting for difference in orientation:
-``` 
+```
 def ROT_y(p):              
     Rot_y = Matrix([[ cos(p),        0,  sin(p)],
                     [      0,        1,       0],
@@ -97,6 +98,23 @@ def ROT_z(y):
     return Rot_z
     
 
+rot_y = ROT_y(rad(-90))
+rot_z = ROT_z(rad(180))
+R_corr = rot_z * rot_y
+
+T_total = T0_EE * R_corr
+
+```
+
+
+
+### Inverse kinematics
+
+Inverse kinematics is essentially the opposite of forward kinematics. In this case, the pose (position and orientation) of the end effector is known and the goal is to calculate the joint angles of the manipulator. For a manipulator with n-joints the overall transformation between the base and end effector can result in highly non-linear equations that can have 0 or multiple solutions. These solutions may violate real-world joint limits so car is needed when choosing among the possible solutions. 
+
+To begin, we need the rotation matrix for the end effector. Again we need to account for the orientation difference between the base link and the gripper by rotating around the z and y axes:
+
+```
 r, p, y = symbols('r p y')
 
 rot_y = ROT_y(p)
@@ -110,10 +128,6 @@ rot_ee = rot_ee * rot_err
 rot_ee = rot_ee.subs({'r': roll, 'p': pitch, 'y': yaw})
 ```
 
-
-### Inverse kinematics
-
-Inverse kinematics is essentially the opposite of forward kinematics. In this case, the pose (position and orientation) of the end effector is known and the goal is to calculate the joint angles of the manipulator. For a manipulator with n-joints the overall transformation between the base and end effector can result in highly non-linear equations that can have 0 or multiple solutions. These solutions may violate real-world joint limits so car is needed when choosing among the possible solutions. 
 
 Because the last 3 joints in the KR210 are revolute and their joint axes intersect at a single point, we can solve the IK problem with an analytical, or closed-form, solution method, and we also have a case of spherical wrist with joint 5 being the common intersection point and hence the wrist center. This allows us to kinematically decouple the IK problem into Inverse Position and Inverse orientation problems. The steps are as follows:
  1. Calculate the location of the spherical wrist center (WC)
@@ -139,7 +153,26 @@ Theta1 can be found be using the wrist center
 ```
 theta1 = atan2(wc[1], wc[0])
 ```
+Theta2 and Theta3 can be found using trigonometry. We have a triangle with two sides known, A = d4 = 1.5 and C = a2 = 1.25, and we can solve for the 3rd side. 
 
+![wc triangle][image5]
+
+```
+a = 1.501
+b = sqrt(pow((sqrt(pow(wc[0], 2) + pow(wc[1], 2)) - 0.35), 2) + pow((wc[2]-0.75),2))
+c = 1.25
+```
+
+Using Cosine Laws, we can solve an SSS triangle to find the 3 angles, and calculate theta2 and theta3
+
+```
+angle_a = acos((b*b + c*c - a*a) / (2*b*c))
+angle_b = acos((a*a + c*c - b*b) / (2*a*c))
+angle_c = acos((a*a + b*b - c*c) / (2*a*b))
+
+theta2 = pi / 2 - angle_a - atan2(wc[2] - 0.75, sqrt(wc[0] * wc[0] + wc[1] * wc[1]) - 0.35)
+theta3 = pi / 2 - (angle_b + 0.036)
+```
 
 
 Once the first 3 joint variables are known, fill in the rotation matric from the base link to link 3
@@ -149,10 +182,9 @@ R0_3 = R0_3.evalf(subs={q1: theta1, q2: theta2, q3:theta3})
 R3_6 = R0_3.inv("LU") * rot_ee 
 ```
 
-
 Find a set of Euler angles corresponding to the rotation matrix:
 
-![rotation matrix for Euler angles][image5]
+![rotation matrix for Euler angles][image6]
 
 ```
 theta4 = atan2(R3_6[2,2], -R3_6[0,2])
