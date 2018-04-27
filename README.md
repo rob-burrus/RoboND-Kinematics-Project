@@ -1,6 +1,6 @@
 # Robotic arm - Pick & Place project
 
-Project description here
+
 
 [//]: # (Image References)
 
@@ -11,7 +11,7 @@ Project description here
 [image5]: ./wc_triangle.png
 [image6]: ./rotation_matrix.png
 
-# Kinematic Analysis
+## Kinematic Analysis
 
 ### Forward kinematics
 
