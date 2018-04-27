@@ -10,6 +10,7 @@
 [image4]: ./wrist_center_position.png
 [image5]: ./wc_triangle.png
 [image6]: ./rotation_matrix.png
+[image7]: ./drop.png
 
 ## Kinematic Analysis
 
@@ -192,7 +193,9 @@ theta5 = atan2(sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
 theta6 = atan2(-R3_6[1,1], R3_6[1,0])
 ```
 
+The picker dropping the cylinder into the bin:
 
+![drop][image7]
 
 
 
