@@ -11,6 +11,7 @@
 [image5]: ./wc_triangle.png
 [image6]: ./rotation_matrix.png
 [image7]: ./drop.png
+[image8]: ./ind_matrices.png
 
 ## Kinematic Analysis
 
@@ -78,6 +79,9 @@ T4_5 = TF_Matrix(alpha4, a4, d5, q5).subs(s)
 T5_6 = TF_Matrix(alpha5, a5, d6, q6).subs(s)
 T6_EE = TF_Matrix(alpha6, a6, d7, q7).subs(s)
 ```
+
+![individual matrices][image8]
+
 
 Also generate a homogenous tranform between base_link and gripper_link using the end-effector pose. In order to compare the total homogeneuos transform between the base link and the gripper link, we need to account for the difference in orientation of the gripper link frame. To do this, apply a sequence of body fixed (intrinsic) rotations. To get the frames to align: (1) rotate the gripper frame about the z-axis by 180 degrees, and (2) about the y-axis by -90 degrees
 
@@ -192,6 +196,8 @@ theta4 = atan2(R3_6[2,2], -R3_6[0,2])
 theta5 = atan2(sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2]), R3_6[1,2])
 theta6 = atan2(-R3_6[1,1], R3_6[1,0])
 ```
+
+### Project Implementation
 
 The picker dropping the cylinder into the bin:
 
