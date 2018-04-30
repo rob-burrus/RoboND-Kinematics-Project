@@ -199,6 +199,22 @@ theta6 = atan2(-R3_6[1,1], R3_6[1,0])
 
 ### Project Implementation
 
+All code modifications were made in IK_server.py, and specifically the handle_calculate_IK function within that file. As discussed above, there are two main parts to this project pipeline - forward and inverse kinematics. The forward kinematics code is on lines 44-83, and only needs to be computed 1 time for each set of poses received by the handle_calculate_IK function. The FK code does the following:
+ 1. Defines sympy symbols to be used in the transform equations (lines 44-47)
+ 2. Defines the DH parameter dictionary (lines 50-57)
+ 3. Defines homogeneous transforms between adjacent links. I defined a helper method, TF_Matrix, to create these. Then, use "subs" method to substitute known values into the expression. (lines 60-66 and 27-32)
+ 4. Define transfromation from base link to gripper link by multiplying the individual transforms (line 68)
+ 5. Account for orientation difference between base link and gripper link (lines 71-83)
+
+By contrast, the inverse kinematics code, lines 127-171, needs to be computed for each pose passed into the function. 
+ 1. Extract end-effector position and orientation from function input (lines 115-121)
+ 2. Define rotation matrix for the end effector (lines 86-102 and line 127)
+ 3. Calculate spherical wrist center (lines 132-136)
+ 4. Lines 142-171 calculate joint angles using a geometric IK method. theta1 (line 142) is found using the wrist center position. theta2 and theta3 are found by first finding the sides of the a triangle, then using the SSS cosine law to find angles (lines 149-160). theta4/5/6 are found by extracting Euler angles from a rotation matrix (lines 163-171)
+ 
+I manually installed Ubuntu and ROS in a virtual machine. Gazebo / Rviz ran fairly slowly, and the gripper didn't have enough time to close and was not able to pick up the cylinder. Adding ```ros:Duration(2.0).sleep()``` to line 327 in trajectory_sampler.cpp file fixed this issue. It took me some time to understand how to geometrically solve inverse kinematics, as there is no rigid algorithmic process. Rather, it requires some experimentation. This project introduced many tools including Rviz, Gazebo, and MoveIt!, as well as some difficult kinematics concepts. Very practical and informative
+ 
+
 The picker dropping the cylinder into the bin:
 
 ![drop][image7]
